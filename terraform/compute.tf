@@ -1,40 +1,46 @@
-
-data "aws_ami" "amazon-linux-2" {
+data "aws_ami" "rhel7_5" {
   most_recent = true
-  owners = ["amazon"]
+
+  owners = ["309956199498"] // Red Hat's account ID.
+
   filter {
-    name = "name"
-    values = [
-      "amzn2-ami-hvm-*-x86_64-gp2",
-    ]
+    name   = "architecture"
+    values = ["x86_64"]
   }
+
   filter {
-    name = "owner-alias"
-    values = [
-      "amazon",
-    ]
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["RHEL-7.5*"]
   }
 }
-
-resource "aws_instance" "jenkins-instance" {
-  ami             = "${data.aws_ami.amazon-linux-2.id}"
-  instance_type   = "t2.medium"
+resource "aws_instance" "jdk" {
+  ami             = "${data.aws_ami.rhl7_5.id}"
+  instance_type   = "t2.micro"
   key_name        = "${var.keyname}"
   #vpc_id          = "${aws_vpc.development-vpc.id}"
-  vpc_security_group_ids = ["${aws_security_group.sg_allow_ssh_jenkins.id}"]
+  vpc_security_group_ids = ["${aws_security_group.sg_allow_ssh_jdk.id}"]
   subnet_id          = "${aws_subnet.public-subnet-1.id}"
   #name            = "${var.name}"
-  user_data = "${file("install_jenkins.sh")}"
+  user_data = "${file("install_jdk_maven.sh")}"
 
   associate_public_ip_address = true
   tags = {
-    Name = "Jenkins-Instance"
   }
 }
 
-resource "aws_security_group" "sg_allow_ssh_jenkins" {
-  name        = "allow_ssh_jenkins"
-  description = "Allow SSH and Jenkins inbound traffic"
+resource "aws_security_group" "sg_allow_ssh_jdk" {
+  name        = "allow_ssh_jdk"
+  description = "Allow SSH and Jdk inbound traffic"
   vpc_id      = "${aws_vpc.development-vpc.id}"
 
   ingress {
@@ -59,6 +65,6 @@ resource "aws_security_group" "sg_allow_ssh_jenkins" {
   }
 }
 
-output "jenkins_ip_address" {
-  value = "${aws_instance.jenkins-instance.public_dns}"
+output "jdk_ip_address" {
+  value = "${aws_instance.jdk-instance.public_dns}"
 }
