@@ -66,5 +66,5 @@ resource "aws_security_group" "sg_allow_ssh_jdk" {
 }
 
 output "jdk_ip_address" {
-  value = "${aws_instance.jdk-instance.public_dns}"
+  value = "${aws_instance.jdk.public_dns}"
 }
