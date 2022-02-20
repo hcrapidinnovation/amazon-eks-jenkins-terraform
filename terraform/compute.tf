@@ -24,7 +24,7 @@ data "aws_ami" "rhel7_5" {
   }
 }
 resource "aws_instance" "jdk" {
-  ami             = "${data.aws_ami.rhl7_5.id}"
+  ami             = "${data.aws_ami.rhel7_5.id}"
   instance_type   = "t2.micro"
   key_name        = "${var.keyname}"
   #vpc_id          = "${aws_vpc.development-vpc.id}"
